@@ -6,10 +6,12 @@ import Home from "./pages/Home";
 import Settings from "./pages/Settings";
 import Footer from "./components/Footer";
 
+//pop ups for whole app can be added here
+import HackBot from "./components/HackBot";
+import BackToTop from "./components/BackToTop";
 export default function App() {
   const { isLoading, error } = useAuth0();
 
-  // Loading State
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-zinc-950 text-zinc-400">
@@ -20,7 +22,6 @@ export default function App() {
     );
   }
 
-  // Error State
   if (error) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-zinc-950">
@@ -36,20 +37,23 @@ export default function App() {
 
   return (
     <BrowserRouter>
-      {/* Global Background */}
-      <div className="min-h-screen bg-gradient-to-br from-zinc-950 via-zinc-900 to-zinc-950 text-white">
+      <div className="min-h-screen flex flex-col bg-gradient-to-br from-zinc-950 via-zinc-900 to-zinc-950 text-white">
         <Navbar />
 
-        {/* Page Container */}
-        <main className="pt-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Pages render here */}
+        <main className="flex-1">
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/settings" element={<Settings />} />
           </Routes>
         </main>
-
         <Footer />
+      </div>
+      {/* GLOBAL OVERLAYS */}
+      <div id="overlays">
+        <BackToTop />
+        <HackBot />
       </div>
     </BrowserRouter>
   );

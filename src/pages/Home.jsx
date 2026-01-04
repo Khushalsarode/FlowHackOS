@@ -3,11 +3,18 @@ import LoginButton from "../auth/LoginButton";
 export default function Home() {
   return (
     <div className="min-h-screen bg-zinc-950 text-white">
-      
+
       {/* HERO */}
       <section className="max-w-6xl mx-auto px-6 pt-28 pb-24 text-center">
-        <span className="inline-block mb-4 rounded-full bg-indigo-500/10 px-4 py-1 text-sm text-indigo-400 border border-indigo-500/20">
-          The Hacker Momentum Engine
+        <span className="inline-flex items-center gap-2 mb-4 rounded-full bg-indigo-500/10 px-4 py-1 text-sm text-indigo-400 border border-indigo-500/20">
+
+          {/* LIVE DOT */}
+          <span className="relative flex h-2.5 w-2.5">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-400"></span>
+          </span>
+
+          Live ·  The Hacker Momentum Engine
         </span>
 
         <h1 className="text-5xl md:text-6xl font-extrabold tracking-tight leading-tight">
