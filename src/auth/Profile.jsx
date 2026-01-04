@@ -1,89 +1,253 @@
+// Profile.jsx
 import { useAuth0 } from "@auth0/auth0-react";
 import { Navigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { FaEdit, FaSave, FaMapMarkerAlt } from "react-icons/fa";
 
 export default function Profile() {
   const { user, isAuthenticated, isLoading } = useAuth0();
 
+  
+  const storageKey = `hackflow-profile-${user?.sub}`;
+
+  const [profile, setProfile] = useState({
+    city: "",
+    role: "Builder",
+    bio: "",
+    skills: [],
+    hacksCompleted: 0,
+    avgFlow: 0,
+    points: 0,
+    streak: 0,
+    teams: 0,
+    recentHacks: []
+  });
+
+  const [skillInput, setSkillInput] = useState("");
+  const [editing, setEditing] = useState(false);
+
+  /* ---------------- Load / Save ---------------- */
+
+  useEffect(() => {
+    if (!user) return;
+    const saved = localStorage.getItem(storageKey);
+    if (saved) setProfile(JSON.parse(saved));
+  }, [user]);
+
+  const saveProfile = () => {
+    localStorage.setItem(storageKey, JSON.stringify(profile));
+    setEditing(false);
+  };
+
+  /* ---------------- Guards ---------------- */
+
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-zinc-950 text-zinc-400">
-        <span className="text-lg animate-pulse">Loading profile…</span>
+        Loading profile…
       </div>
     );
   }
 
   if (!isAuthenticated) return <Navigate to="/" />;
 
+  /* ---------------- UI ---------------- */
+
   return (
     <main className="min-h-screen bg-zinc-950 pt-24 px-4">
-      <div className="mx-auto max-w-4xl">
+      <div className="mx-auto max-w-5xl space-y-8">
 
-        {/* Header Card */}
-        <div className="relative bg-zinc-900/80 backdrop-blur-xl border border-zinc-800 rounded-2xl shadow-2xl p-8">
-          <div className="flex flex-col sm:flex-row items-center gap-6">
+        {/* HEADER */}
+        <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-8 flex flex-col sm:flex-row gap-6 items-center">
+          <img
+            src={user.picture}
+            className="w-32 h-32 rounded-full border-4 border-indigo-400"
+          />
 
-            {/* Avatar */}
-            <div className="relative w-32 h-32 rounded-full overflow-hidden border-4 border-indigo-400 shadow-lg shrink-0">
-              <img
-                src={user?.picture || ""}
-                alt={user?.name || "User"}
-                className="w-full h-full object-cover"
-                onError={(e) => {
-                  e.currentTarget.src =
-                    "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='110' height='110' viewBox='0 0 110 110'%3E%3Ccircle cx='55' cy='55' r='55' fill='%236366f1'/%3E%3Cpath d='M55 50c8.28 0 15-6.72 15-15s-6.72-15-15-15-15 6.72-15 15 6.72 15 15 15zm0 7.5c-10 0-30 5.02-30 15v3.75c0 2.07 1.68 3.75 3.75 3.75h52.5c2.07 0 3.75-1.68 3.75-3.75V72.5c0-9.98-20-15-30-15z' fill='%23fff'/%3E%3C/svg%3E";
-                }}
-              />
-            </div>
+          <div className="flex-1 text-center sm:text-left">
+            <h1 className="text-3xl font-bold text-white">
+              {user.name}
+            </h1>
+            <p className="text-zinc-400">{user.email}</p>
 
-            {/* User Info */}
-            <div className="text-center sm:text-left">
-              <h1 className="text-3xl font-bold text-white">
-                {user?.name}
-              </h1>
-              <p className="text-zinc-400 mt-1">{user?.email}</p>
-
-              <div className="mt-3 inline-flex items-center gap-2 text-xs text-zinc-400 bg-zinc-800/60 px-3 py-1 rounded-full border border-zinc-700">
-                <span className="w-2 h-2 bg-green-400 rounded-full" />
-                Active Member
-              </div>
+            <div className="flex flex-wrap gap-2 mt-3 text-xs">
+              <Badge label={user.sub.split("|")[0]} />
+              <Badge label="HackFLOW Member" />
+              <Badge label="Active" green />
             </div>
           </div>
+
+          <button
+            onClick={() => (editing ? saveProfile() : setEditing(true))}
+            className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-lg"
+          >
+            {editing ? <FaSave /> : <FaEdit />}
+            {editing ? "Save" : "Edit"}
+          </button>
         </div>
 
-        {/* Stats Section */}
-        <div className="mt-8 grid grid-cols-2 sm:grid-cols-4 gap-4">
-          <StatCard label="Projects" value="—" />
-          <StatCard label="Teams" value="—" />
-          <StatCard label="Contributions" value="—" />
-          <StatCard label="Achievements" value="—" />
+        {/* STATS */}
+        <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
+          <Stat label="Hacks" value={profile.hacksCompleted} />
+          <Stat label="Avg Flow" value={profile.avgFlow} />
+          <Stat label="Points" value={profile.points} />
+          <Stat label="Streak" value={`${profile.streak}🔥`} />
+          <Stat label="Teams" value={profile.teams} />
         </div>
 
-        {/* About / Placeholder */}
-        <div className="mt-8 bg-zinc-900/70 border border-zinc-800 rounded-2xl p-6">
-          <h2 className="text-lg font-semibold text-white mb-2">
-            About
-          </h2>
-          <p className="text-zinc-400 text-sm leading-relaxed">
-            This is your HackFLOW profile. Soon you’ll be able to showcase your
-            projects, skills, team collaborations, and achievements here.
-          </p>
-        </div>
+        {/* ABOUT */}
+        <Section title="About You">
+          {editing ? (
+            <textarea
+              value={profile.bio}
+              onChange={e =>
+                setProfile({ ...profile, bio: e.target.value })
+              }
+              placeholder="Your hackathon journey, interests, mindset…"
+              className="w-full p-3 bg-zinc-800 rounded text-white"
+            />
+          ) : (
+            <p className="text-zinc-400 text-sm">
+              {profile.bio || "No bio added yet."}
+            </p>
+          )}
+        </Section>
+
+        {/* LOCATION & ROLE */}
+        <Section title="Details">
+          <div className="grid sm:grid-cols-2 gap-4">
+            <Field
+              label="City"
+              icon={<FaMapMarkerAlt />}
+              value={profile.city}
+              editing={editing}
+              onChange={v => setProfile({ ...profile, city: v })}
+            />
+            <Field
+              label="Role"
+              value={profile.role}
+              editing={editing}
+              onChange={v => setProfile({ ...profile, role: v })}
+            />
+          </div>
+        </Section>
+
+        {/* SKILLS */}
+        <Section title="Skills">
+          <div className="flex flex-wrap gap-2">
+            {profile.skills.map((s, i) => (
+              <span
+                key={i}
+                className="bg-indigo-600/20 text-indigo-300 px-3 py-1 rounded-full text-sm"
+              >
+                {s}
+              </span>
+            ))}
+          </div>
+
+          {editing && (
+            <div className="flex gap-2 mt-3">
+              <input
+                value={skillInput}
+                onChange={e => setSkillInput(e.target.value)}
+                placeholder="Add skill"
+                className="flex-1 p-2 rounded bg-zinc-800 text-white"
+              />
+              <button
+                onClick={() => {
+                  if (!skillInput) return;
+                  setProfile({
+                    ...profile,
+                    skills: [...profile.skills, skillInput]
+                  });
+                  setSkillInput("");
+                }}
+                className="bg-indigo-500 px-4 rounded text-white"
+              >
+                Add
+              </button>
+            </div>
+          )}
+        </Section>
+
+        {/* HACK HISTORY */}
+        <Section title="Hackathon Activity">
+          {profile.recentHacks.length === 0 ? (
+            <p className="text-zinc-500 text-sm">
+              No hacks recorded yet.
+            </p>
+          ) : (
+            <ul className="space-y-2">
+              {profile.recentHacks.map((h, i) => (
+                <li
+                  key={i}
+                  className="bg-zinc-800 p-3 rounded text-sm text-zinc-300"
+                >
+                  {h}
+                </li>
+              ))}
+            </ul>
+          )}
+        </Section>
+
       </div>
     </main>
   );
 }
 
-/* ---------- Components ---------- */
+/* ---------------- Reusable UI ---------------- */
 
-function StatCard({ label, value }) {
+function Section({ title, children }) {
   return (
-    <div className="bg-zinc-900/60 border border-zinc-800 rounded-xl p-4 text-center hover:bg-zinc-900 transition">
-      <p className="text-zinc-400 text-xs uppercase tracking-wide">
-        {label}
-      </p>
+    <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-6">
+      <h2 className="text-lg font-semibold text-white mb-3">
+        {title}
+      </h2>
+      {children}
+    </div>
+  );
+}
+
+function Stat({ label, value }) {
+  return (
+    <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-4 text-center">
+      <p className="text-zinc-400 text-xs uppercase">{label}</p>
       <p className="text-white text-xl font-semibold mt-1">
         {value}
       </p>
+    </div>
+  );
+}
+
+function Badge({ label, green }) {
+  return (
+    <span
+      className={`px-3 py-1 rounded-full text-xs border ${
+        green
+          ? "bg-green-500/20 text-green-400 border-green-500/30"
+          : "bg-zinc-800 text-zinc-300 border-zinc-700"
+      }`}
+    >
+      {label}
+    </span>
+  );
+}
+
+function Field({ label, value, editing, onChange, icon }) {
+  return (
+    <div>
+      <label className="text-zinc-400 text-xs">{label}</label>
+      {editing ? (
+        <input
+          value={value}
+          onChange={e => onChange(e.target.value)}
+          className="w-full p-2 bg-zinc-800 rounded text-white mt-1"
+        />
+      ) : (
+        <p className="text-white mt-1 flex items-center gap-2">
+          {icon} {value || "—"}
+        </p>
+      )}
     </div>
   );
 }

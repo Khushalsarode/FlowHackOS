@@ -1,14 +1,33 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { useAuth0 } from "@auth0/auth0-react";
-import Navbar from "./auth/navbar/Navbar";
+import Navbar from "./navbar/Navbar";
 import Profile from "./auth/Profile";
 import Home from "./pages/Home";
 import Settings from "./pages/Settings";
 import Footer from "./components/Footer";
+import Notifications from "./components/Notifications";
 
-//pop ups for whole app can be added here
+// usermodules
+import Dashboard from "./usermodules/Dashboard";
+import Station from "./usermodules/Station";
+import Workspace from "./usermodules/Workspace";
+
+// popups
 import HackBot from "./components/HackBot";
 import BackToTop from "./components/BackToTop";
+
+// Import IdeasProvider
+import { IdeasProvider } from "./hackideas/IdeasContext";
+
+import EventPage from "./pages/EventPage";
+import BlogPage from "./pages/BlogPage";
+import TeamDirectory from "./pages/TeamDirectory";
+import HackMap from "./pages/HackMap";
+
+import FeaturePage from "./pages/FeaturePage";
+import HowItWorksPage from "./pages/HowItWorksPage";
+import AboutPage from "./pages/AboutPage";
+import CommunityPage from "./pages/CommunityPage";
 export default function App() {
   const { isLoading, error } = useAuth0();
 
@@ -40,17 +59,32 @@ export default function App() {
       <div className="min-h-screen flex flex-col bg-gradient-to-br from-zinc-950 via-zinc-900 to-zinc-950 text-white">
         <Navbar />
 
-        {/* Pages render here */}
         <main className="flex-1">
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/settings" element={<Settings />} />
-          </Routes>
+          <IdeasProvider>
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/profile" element={<Profile />} />
+              <Route path="/settings" element={<Settings />} />
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/station" element={<Station />} />
+              <Route path="/workspace" element={<Workspace />} />
+              <Route path="/events" element={<EventPage />} />
+              <Route path="/blog" element={<BlogPage />} />
+              <Route path="/teams" element={<TeamDirectory />} />
+              <Route path="/hackmap" element={<HackMap />} />
+              <Route path="/notifications" element={<Notifications />} />
+              <Route path="/features" element={<FeaturePage />} />
+              <Route path="/how-it-works" element={<HowItWorksPage />} />
+              <Route path="/about" element={<AboutPage />} />
+              <Route path="/community" element={<CommunityPage />} />
+
+            </Routes>
+          </IdeasProvider>
         </main>
+
         <Footer />
       </div>
-      {/* GLOBAL OVERLAYS */}
+
       <div id="overlays">
         <BackToTop />
         <HackBot />

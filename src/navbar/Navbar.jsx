@@ -1,8 +1,8 @@
 import { Link, useLocation } from "react-router-dom";
 import { useState } from "react";
 import { useAuth0 } from "@auth0/auth0-react";
-import LoginButton from "../LoginButton";
-import LogoutButton from "../LogoutButton";
+import LoginButton from "../auth/LoginButton";
+import LogoutButton from "../auth/LogoutButton";
 
 export default function Navbar() {
   const { isAuthenticated, user } = useAuth0();
@@ -29,18 +29,19 @@ export default function Navbar() {
             {!isAuthenticated ? (
               <>
                  <NavItem label="Home" to="/" active={location.pathname === "/"} />
-                <NavItem label="Features" />
-                <NavItem label="How it Works" />
-                <NavItem label="Community" />
-                <NavItem label="About" />
+                <NavItem label="Features" to="/features" active={location.pathname === "/features"} />
+                <NavItem label="How it Works" to="/how-it-works" active={location.pathname === "/how-it-works"} />
+                <NavItem label="Community" to="/community" active={location.pathname === "/community"} />
+                <NavItem label="About" to="/about" active={location.pathname === "/about"} />
               </>
             ) : (
               <>
-                <NavItem label="Dashboard" to="/" active={location.pathname === "/"} />
-                <NavItem label="HackMap" />
-                <NavItem label="Teams" />
-                <NavItem label="Events" />
-                <NavItem label="Blog" />
+                <NavItem label="Dashboard" to="/dashboard" active={location.pathname === "/dashboard"} />
+                <NavItem label="Station" to="/station" active={location.pathname === "/station"} />
+                <NavItem label="HackMap" to="/hackmap" active={location.pathname === "/hackmap"} />
+                <NavItem label="Teams" to="/teams" active={location.pathname === "/teams"} />
+                <NavItem label="Events" to="/events" active={location.pathname === "/events"} />
+                <NavItem label="Blog" to="/blog" active={location.pathname === "/blog"} />
               </>
             )}
           </div>
@@ -77,6 +78,10 @@ export default function Navbar() {
 
                     <DropdownLink to="/settings" onClick={() => setDropdownOpen(false)}>
                       Settings
+                    </DropdownLink>
+
+                    <DropdownLink to="/notifications" onClick={() => setDropdownOpen(false)}>
+                      Notifications
                     </DropdownLink>
 
                     <div className="border-t border-zinc-800 my-1" />
